@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>eu.pmav.nlp</groupId>
-    <artifactId>bilbes-translator</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>eu.pmav</groupId>
+    <artifactId>deep-learning-subversive-spell-checker</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 
     <build>
         <plugins>
@@ -22,16 +22,10 @@
     </build>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.deeplearning4j/deeplearning4j-core -->
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-core</artifactId>
             <version>0.9.1</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.1.7</version>
         </dependency>
         <dependency>
             <groupId>org.nd4j</groupId>
@@ -39,9 +33,9 @@
             <version>0.9.1</version>
         </dependency>
         <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-ui_2.10</artifactId>
-            <version>0.9.1</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.1.7</version>
         </dependency>
     </dependencies>
 
