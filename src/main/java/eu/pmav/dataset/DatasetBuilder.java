@@ -1,9 +1,12 @@
 package eu.pmav.dataset;
 
+import eu.pmav.network.ModelBuilder;
 import org.datavec.api.util.ClassPathResource;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,6 +19,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class DatasetBuilder {
+
+    private static Logger log = LoggerFactory.getLogger(ModelBuilder.class);
 
     private DatasetBuilder(String filePath) {
     }
@@ -56,6 +61,8 @@ public class DatasetBuilder {
             labelsArray.putRow(row, Nd4j.create(outputVector.stream().mapToDouble(i -> i).toArray()));
             row++;
         }
+
+        log.info("Dataset size: " + features.size());
 
         return new DataSet(featuresArray, labelsArray);
     }

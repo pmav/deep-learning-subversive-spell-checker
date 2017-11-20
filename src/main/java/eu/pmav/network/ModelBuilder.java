@@ -21,40 +21,27 @@ public class ModelBuilder {
 
     private static Logger log = LoggerFactory.getLogger(ModelBuilder.class);
 
+    private static int iterations = 2000;
+
+    private static long seed = 6;
+
+    private static int hiddenLayerNodeCount = 60;
+
     private ModelBuilder() {
     }
 
     public static MultiLayerNetwork  build(DataSet dataset) {
-        //First: get the dataset using the record reader. CSVRecordReader handles loading/parsing
-        //int numLinesToSkip = 0;
-        //char delimiter = ',';
-        //RecordReader recordReader = new CSVRecordReader(numLinesToSkip,delimiter);
-        //recordReader.initialize(new FileSplit(new ClassPathResource("bilbes-raw.txt").getFile()));
 
-
-
-        //int labelIndexFrom = 81;
-        //int labelIndexTo = 107;
-
-
-
-        //DataSetIterator iterator = new RecordReaderDataSetIterator(recordReader,10000,labelIndexFrom,labelIndexTo,true);
-        //DataSet allData = iterator.next();
-        //DataSet allData = new DataSet();
         dataset.shuffle();
         SplitTestAndTrain testAndTrain = dataset.splitTestAndTrain(0.65);  //Use 65% of data for training
-
         DataSet trainingData = testAndTrain.getTrain();
         DataSet testData = testAndTrain.getTest();
 
-        final int numInputs = 81;
-        int outputNum = 27;
-        int iterations = 1000;
-        long seed = 6;
-
+        final int numInputs = trainingData.getFeatures().size(1);
+        int outputNum = trainingData.getLabels().size(1);
 
         log.info("Build model....");
-        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+        MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(iterations)
                 .activation(Activation.TANH)
@@ -62,23 +49,22 @@ public class ModelBuilder {
                 .learningRate(0.1)
                 .regularization(true).l2(1e-4)
                 .list()
-                .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(100).build())
-                .layer(1, new DenseLayer.Builder().nIn(100).nOut(100).build())
-                .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD).activation(Activation.SOFTMAX).nIn(100).nOut(outputNum).build())
+                .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(hiddenLayerNodeCount).build())
+                .layer(1, new DenseLayer.Builder().nIn(hiddenLayerNodeCount).nOut(hiddenLayerNodeCount).build())
+                .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD).activation(Activation.SOFTMAX).nIn(hiddenLayerNodeCount).nOut(outputNum).build())
                 .backprop(true)
                 .pretrain(false)
                 .build();
 
 
-        //run the model
-        MultiLayerNetwork model = new MultiLayerNetwork(conf);
+        // Train the model.
+        MultiLayerNetwork model = new MultiLayerNetwork(configuration);
         model.init();
         model.setListeners(new ScoreIterationListener(100));
         model.fit(trainingData);
 
-        //evaluate the model on the test set
+        // Evaluate the model on the test set.
         INDArray output = model.output(testData.getFeatureMatrix());
-
         Evaluation eval = new Evaluation(27);
         eval.eval(testData.getLabels(), output);
         log.info(eval.stats());

@@ -21,36 +21,36 @@ public class Main {
         // Create model.
         MultiLayerNetwork model = ModelBuilder.build(dataset);
 
-//        System.out.println("Enter phrase:");
-//        Scanner sc = new Scanner(System.in);
-//        while (true) {
-//            String line = sc.nextLine();
-//            if (line.equalsIgnoreCase("exit")) {
-//                break;
-//            }
-//
-//            StringBuilder sb = new StringBuilder();
-//            for (String s : line.split(" ")) {
-//                List<List<Integer>> vectors = DatasetBuilder.phrase2vector(s);
-//
-//                List<INDArray> INDArrays = new ArrayList<>();
-//                for (List<Integer> vector : vectors) {
-//
-//                    INDArray indArray = Nd4j.create(vector.stream().mapToDouble(i -> i).toArray());
-//                    INDArrays.add(indArray);
-//                }
-//
-//                int[] predict = model.predict(Nd4j.vstack(INDArrays));
-//
-//
-//                for (int i = 0; i < predict.length; i++) {
-//                    sb.append(DatasetBuilder.labelToChar(predict[i]));
-//                }
-//
-//                sb.append(" ");
-//            }
-//
-//            System.out.println(sb.toString().replaceAll("_", ""));
-//        }
+        System.out.println("Enter phrase:");
+        Scanner sc = new Scanner(System.in);
+        while (true) {
+            String line = sc.nextLine();
+            if (line.equalsIgnoreCase("exit")) {
+                break;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            for (String s : line.split(" ")) {
+                List<List<Integer>> vectors = DatasetBuilder.phrase2vector(s);
+
+                List<INDArray> INDArrays = new ArrayList<>();
+                for (List<Integer> vector : vectors) {
+
+                    INDArray indArray = Nd4j.create(vector.stream().mapToDouble(i -> i).toArray());
+                    INDArrays.add(indArray);
+                }
+
+                int[] predict = model.predict(Nd4j.vstack(INDArrays));
+
+
+                for (int i = 0; i < predict.length; i++) {
+                    sb.append(DatasetBuilder.labelToChar(predict[i]));
+                }
+
+                sb.append(" ");
+            }
+
+            System.out.println(sb.toString().replaceAll("_", ""));
+        }
     }
 }
