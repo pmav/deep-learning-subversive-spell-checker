@@ -1,19 +1,25 @@
 package eu.pmav;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 import eu.pmav.dataset.DatasetBuilder;
 import eu.pmav.network.ModelBuilder;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.factory.Nd4j;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) throws Exception {
+
+        // Setup logger level.
+        LoggerContext loggerContext = (LoggerContext)LoggerFactory.getILoggerFactory();
+        Logger rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
+        rootLogger.setLevel(Level.INFO);
 
         // Create dataset.
         DataSet dataset = DatasetBuilder.build("training-data-pt/data.txt");
@@ -30,21 +36,14 @@ public class Main {
             }
 
             StringBuilder sb = new StringBuilder();
-            for (String s : line.split(" ")) {
-                List<List<Integer>> vectors = DatasetBuilder.phrase2vector(s);
 
-                List<INDArray> INDArrays = new ArrayList<>();
-                for (List<Integer> vector : vectors) {
+            for (String token : DatasetBuilder.tokenize(line)) {
+                INDArray indArray = DatasetBuilder.token2array(token);
 
-                    INDArray indArray = Nd4j.create(vector.stream().mapToDouble(i -> i).toArray());
-                    INDArrays.add(indArray);
-                }
+                int[] predicts = model.predict(indArray);
 
-                int[] predict = model.predict(Nd4j.vstack(INDArrays));
-
-
-                for (int i = 0; i < predict.length; i++) {
-                    sb.append(DatasetBuilder.labelToChar(predict[i]));
+                for (int predict : predicts) {
+                    sb.append(DatasetBuilder.labelToChar(predict));
                 }
 
                 sb.append(" ");

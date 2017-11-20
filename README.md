@@ -18,7 +18,6 @@ At the moment only a portuguese data set is available.
 
 - organize code
 - add more training data
-- change features from position vector to binary char representation
 - add micro profile support
 - generate auto exec jar
 - create web ui
@@ -48,3 +47,9 @@ At the moment only a portuguese data set is available.
     Precision:       0.8409	(6 classes excluded from average)
     Recall:          0.7224	(2 classes excluded from average)
     F1 Score:        0.8328	(6 classes excluded from average)
+
+    Dataset size: 852
+    Accuracy:        0.7258
+    Precision:       0.7587	(5 classes excluded from average)
+    Recall:          0.6627	(3 classes excluded from average)
+    F1 Score:        0.7305	(5 classes excluded from average)

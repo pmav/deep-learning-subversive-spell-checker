@@ -21,37 +21,34 @@ public class ModelBuilder {
 
     private static Logger log = LoggerFactory.getLogger(ModelBuilder.class);
 
-    private static int iterations = 2000;
-
-    private static long seed = 6;
-
-    private static int hiddenLayerNodeCount = 60;
+    private static final int ITERATIONS = 2500;
+    private static final long SEED = 6;
+    private static final int HIDDEN_LAYER_NODE_COUNT = 90;
 
     private ModelBuilder() {
     }
 
     public static MultiLayerNetwork  build(DataSet dataset) {
-
         dataset.shuffle();
-        SplitTestAndTrain testAndTrain = dataset.splitTestAndTrain(0.65);  //Use 65% of data for training
+        SplitTestAndTrain testAndTrain = dataset.splitTestAndTrain(0.65);  // Use 65% of data for training.
         DataSet trainingData = testAndTrain.getTrain();
         DataSet testData = testAndTrain.getTest();
 
-        final int numInputs = trainingData.getFeatures().size(1);
-        int outputNum = trainingData.getLabels().size(1);
+        int numInputs = trainingData.getFeatures().size(1);
+        int numOutput = trainingData.getLabels().size(1);
 
         log.info("Build model....");
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
-                .seed(seed)
-                .iterations(iterations)
-                .activation(Activation.TANH)
+                .seed(SEED)
+                .iterations(ITERATIONS)
+                .activation(Activation.RELU)
                 .weightInit(WeightInit.XAVIER)
                 .learningRate(0.1)
                 .regularization(true).l2(1e-4)
                 .list()
-                .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(hiddenLayerNodeCount).build())
-                .layer(1, new DenseLayer.Builder().nIn(hiddenLayerNodeCount).nOut(hiddenLayerNodeCount).build())
-                .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD).activation(Activation.SOFTMAX).nIn(hiddenLayerNodeCount).nOut(outputNum).build())
+                .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(HIDDEN_LAYER_NODE_COUNT).build())
+                .layer(1, new DenseLayer.Builder().nIn(HIDDEN_LAYER_NODE_COUNT).nOut(HIDDEN_LAYER_NODE_COUNT).build())
+                .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD).activation(Activation.SOFTMAX).nIn(HIDDEN_LAYER_NODE_COUNT).nOut(numOutput).build())
                 .backprop(true)
                 .pretrain(false)
                 .build();
@@ -65,7 +62,7 @@ public class ModelBuilder {
 
         // Evaluate the model on the test set.
         INDArray output = model.output(testData.getFeatureMatrix());
-        Evaluation eval = new Evaluation(27);
+        Evaluation eval = new Evaluation(numOutput);
         eval.eval(testData.getLabels(), output);
         log.info(eval.stats());
 
