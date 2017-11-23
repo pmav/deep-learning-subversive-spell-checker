@@ -16,7 +16,7 @@ public class SpellcheckerEndpoint {
     @Produces("text/plain")
     public Response doGet(@QueryParam("input") String input) {
 
-        Predictor predictor = Provider.getPredictor();
+        Predictor predictor = Provider.getInstance().getPredictor();
         String output = predictor.predict(input);
 
         return Response.ok(output).build();

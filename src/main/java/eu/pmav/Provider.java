@@ -27,7 +27,7 @@ public class Provider {
 
     private void init() throws DatabaseBuilderException {
         // Create dataset.
-        DataSet dataset = DatasetBuilder.build("training-data-pt/data.txt");
+        DataSet dataset = DatasetBuilder.build("/training-data-pt/data.txt");
 
         // Create model.
         MultiLayerNetwork model = ModelBuilder.build(dataset);
@@ -36,7 +36,7 @@ public class Provider {
         predictor = new Predictor(model);
     }
 
-    public static Predictor getPredictor() {
+    public Predictor getPredictor() {
         return predictor;
     }
 }

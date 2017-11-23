@@ -2,7 +2,6 @@ package eu.pmav.dataset;
 
 import eu.pmav.dataset.exception.DatabaseBuilderException;
 import eu.pmav.model.ModelBuilder;
-import org.datavec.api.util.ClassPathResource;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
@@ -10,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +30,7 @@ public class DatasetBuilder {
     public static DataSet build(String filePath) throws DatabaseBuilderException {
         try {
             // Load file.
-            List<String> lines = loadFile(new ClassPathResource(filePath).getFile());
+            List<String> lines = loadFile(DatasetBuilder.class.getResourceAsStream(filePath));
 
             // Create cases.
             List<List<String>> cases = new ArrayList<>();
@@ -114,10 +113,10 @@ public class DatasetBuilder {
         return input;
     }
 
-    private static List<String> loadFile(File file) throws IOException {
+    private static List<String> loadFile(InputStream inputStream) throws IOException {
         List<String> lines = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
             while ((line = br.readLine()) != null) {
                 line = line.trim();

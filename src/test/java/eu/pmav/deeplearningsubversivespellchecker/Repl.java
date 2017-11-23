@@ -1,11 +1,10 @@
+package eu.pmav.deeplearningsubversivespellchecker;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import eu.pmav.dataset.DatasetBuilder;
-import eu.pmav.model.ModelBuilder;
+import eu.pmav.Provider;
 import eu.pmav.predictor.Predictor;
-import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
-import org.nd4j.linalg.dataset.DataSet;
 import org.slf4j.LoggerFactory;
 
 import java.util.Scanner;
@@ -18,14 +17,8 @@ public class Repl {
         Logger rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
         rootLogger.setLevel(Level.INFO);
 
-        // Create dataset.
-        DataSet dataset = DatasetBuilder.build("training-data-pt/data.txt");
-
-        // Create model.
-        MultiLayerNetwork model = ModelBuilder.build(dataset);
-
         // Create predictor.
-        Predictor predictor = new Predictor(model);
+        Predictor predictor = Provider.getInstance().getPredictor();
 
         System.out.println("Enter phrase:");
         Scanner sc = new Scanner(System.in);
