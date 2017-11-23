@@ -1,6 +1,7 @@
 package eu.pmav.dataset;
 
-import eu.pmav.network.ModelBuilder;
+import eu.pmav.dataset.exception.DatabaseBuilderException;
+import eu.pmav.model.ModelBuilder;
 import org.datavec.api.util.ClassPathResource;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -27,46 +28,51 @@ public class DatasetBuilder {
 
     // --
 
-    public static DataSet build(String filePath) throws Exception { // Add custom exception.
-        // Load file.
-        List<String> lines = loadFile(new ClassPathResource(filePath).getFile());
+    public static DataSet build(String filePath) throws DatabaseBuilderException {
+        try {
+            // Load file.
+            List<String> lines = loadFile(new ClassPathResource(filePath).getFile());
 
-        // Create cases.
-        List<List<String>> cases = new ArrayList<>();
-        for (int i = 0; i < lines.size(); i = i + 2) {
-            cases.add(Arrays.asList(lines.get(i), lines.get(i + 1)));
+            // Create cases.
+            List<List<String>> cases = new ArrayList<>();
+            for (int i = 0; i < lines.size(); i = i + 2) {
+                cases.add(Arrays.asList(lines.get(i), lines.get(i + 1)));
+            }
+
+            // Create features.
+            List<List<String>> features = new ArrayList<>();
+            for (List<String> aCase : cases) {
+                features.addAll(createFeatures(aCase.get(0), aCase.get(1)));
+            }
+
+            INDArray featuresArray = Nd4j.create(features.size(), 27 * 3);
+            INDArray labelsArray = Nd4j.create(features.size(), 27);
+
+            int row = 0;
+            for (List<String> feature : features) {
+                String input = feature.get(0);
+                String output = feature.get(1);
+
+                List<Integer> inputVector = new ArrayList<>();
+                inputVector.addAll(charToVector(input.charAt(0)));
+                inputVector.addAll(charToVector(input.charAt(1)));
+                inputVector.addAll(charToVector(input.charAt(2)));
+
+                List<Integer> outputVector = new ArrayList<>();
+                outputVector.addAll(charToVector(output.charAt(0)));
+
+                featuresArray.putRow(row, Nd4j.create(inputVector.stream().mapToDouble(i -> i).toArray()));
+                labelsArray.putRow(row, Nd4j.create(outputVector.stream().mapToDouble(i -> i).toArray()));
+                row++;
+            }
+
+            log.info("Dataset size: " + features.size());
+
+            return new DataSet(featuresArray, labelsArray);
+
+        } catch (IOException ioException) {
+            throw new DatabaseBuilderException(ioException);
         }
-
-        // Create features.
-        List<List<String>> features = new ArrayList<>();
-        for (List<String> aCase : cases) {
-            features.addAll(createFeatures(aCase.get(0), aCase.get(1)));
-        }
-
-        INDArray featuresArray = Nd4j.create(features.size(), 27 * 3);
-        INDArray labelsArray = Nd4j.create(features.size(), 27);
-
-        int row = 0;
-        for (List<String> feature : features) {
-            String input = feature.get(0);
-            String output = feature.get(1);
-
-            List<Integer> inputVector = new ArrayList<>();
-            inputVector.addAll(charToVector(input.charAt(0)));
-            inputVector.addAll(charToVector(input.charAt(1)));
-            inputVector.addAll(charToVector(input.charAt(2)));
-
-            List<Integer> outputVector = new ArrayList<>();
-            outputVector.addAll(charToVector(output.charAt(0)));
-
-            featuresArray.putRow(row, Nd4j.create(inputVector.stream().mapToDouble(i -> i).toArray()));
-            labelsArray.putRow(row, Nd4j.create(outputVector.stream().mapToDouble(i -> i).toArray()));
-            row++;
-        }
-
-        log.info("Dataset size: " + features.size());
-
-        return new DataSet(featuresArray, labelsArray);
     }
 
     public static INDArray token2array(String token) {
@@ -124,7 +130,7 @@ public class DatasetBuilder {
         return lines;
     }
 
-    private static List<List<String>> createFeatures(String s1, String s2) throws Exception {
+    private static List<List<String>> createFeatures(String s1, String s2) throws DatabaseBuilderException {
         List<List<String>> results = new ArrayList<>();
 
         // Text cleanup.
@@ -132,14 +138,14 @@ public class DatasetBuilder {
         s2 = cleanText(s2);
 
         if (s1.length() != s2.length()) {
-            throw new Exception(String.format("Error #1: [%s] [%s]", s1, s2)); // TODO Better message.
+            throw new DatabaseBuilderException(String.format("Error #1: [%s] [%s]", s1, s2)); // TODO Better message.
         }
 
         List<String> s1Tokens = tokenize(s1);
         List<String> s2Tokens = tokenize(s2);
 
         if (s1Tokens.size() != s2Tokens.size()) {
-            throw new Exception(String.format("Error #2: [%s] [%s]", s1, s2)); // TODO Better message.
+            throw new DatabaseBuilderException(String.format("Error #2: [%s] [%s]", s1, s2)); // TODO Better message.
         }
 
         for (int i = 0; i < s1Tokens.size(); i++) {
@@ -147,7 +153,7 @@ public class DatasetBuilder {
             List<String> stream2 = token2stream(s2Tokens.get(i));
 
             if (stream1.size() != stream2.size()) {
-                throw new Exception(String.format("Error #3: [%s] [%s]", s1, s2)); // TODO Better message.
+                throw new DatabaseBuilderException(String.format("Error #3: [%s] [%s]", s1, s2)); // TODO Better message.
             }
 
             for (int j = 0; j < stream1.size(); j++) {

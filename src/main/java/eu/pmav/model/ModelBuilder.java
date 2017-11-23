@@ -1,4 +1,4 @@
-package eu.pmav.network;
+package eu.pmav.model;
 
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
