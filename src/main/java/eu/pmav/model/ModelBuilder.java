@@ -21,17 +21,17 @@ public class ModelBuilder {
 
     private static Logger log = LoggerFactory.getLogger(ModelBuilder.class);
 
-    private static final int ITERATIONS = 2500;
+    private static final int ITERATIONS = 1500;
     private static final long SEED = 6;
-    private static final int HIDDEN_LAYER_NODE_COUNT = 500;
+    private static final int HIDDEN_LAYER_NODE_COUNT = 1000;
 
     private ModelBuilder() {
     }
 
-    public static MultiLayerNetwork  build(DataSet dataset) {
+    public static MultiLayerNetwork build(DataSet dataset) {
         long startTime = System.nanoTime();
 
-        dataset.shuffle();
+        dataset.shuffle(SEED);
         SplitTestAndTrain testAndTrain = dataset.splitTestAndTrain(0.65);  // Use 65% of data for training.
         DataSet trainingData = testAndTrain.getTrain();
         DataSet testData = testAndTrain.getTest();
@@ -58,16 +58,16 @@ public class ModelBuilder {
         // Train the model.
         MultiLayerNetwork model = new MultiLayerNetwork(configuration);
         model.init();
-        model.setListeners(new ScoreIterationListener(100));
+        //model.setListeners(new ScoreIterationListener(100));
         model.fit(trainingData);
 
         log.info("Training time: {} ms", (int)((System.nanoTime() - startTime) / 1e6));
 
         // Evaluate the model on the test set.
-        INDArray output = model.output(testData.getFeatureMatrix());
-        Evaluation eval = new Evaluation(numOutput);
-        eval.eval(testData.getLabels(), output);
-        log.info(eval.stats());
+        //INDArray output = model.output(testData.getFeatureMatrix());
+        //Evaluation eval = new Evaluation(numOutput);
+        //eval.eval(testData.getLabels(), output);
+        //log.info(eval.stats());
 
         return model;
     }
